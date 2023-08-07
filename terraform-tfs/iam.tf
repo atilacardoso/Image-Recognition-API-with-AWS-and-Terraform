@@ -1,5 +1,3 @@
-# iam.tf
-
 resource "aws_iam_role" "rekognition_role" {
   name = "RekognitionRole"
 
@@ -11,6 +9,13 @@ resource "aws_iam_role" "rekognition_role" {
         Effect = "Allow",
         Principal = {
           Service = "rekognition.amazonaws.com"
+        }
+      },
+      {
+        Action = "sts:AssumeRole",
+        Effect = "Allow",
+        Principal = {
+          Service = "lambda.amazonaws.com"
         }
       }
     ]
