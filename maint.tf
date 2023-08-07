@@ -7,16 +7,6 @@ variable "bucket_name" {
   default     = "my-api-image-rekognition"
 }
 
-terraform {
-  backend "s3" {
-    bucket         = "my-api-image-terraform-state"
-    key            = "terraform.tfstate"
-    region         = "us-east-1"  # Change this to the region of your S3 bucket
-    encrypt        = true
-    dynamodb_table = "my-terraform-lock-table"
-  }
-}
-
 resource "aws_s3_bucket" "image_bucket" {
   bucket = var.bucket_name
 }
@@ -28,32 +18,11 @@ resource "aws_s3_bucket_policy" "image_bucket_policy" {
     Version = "2012-10-17",
     Statement = [
       {
-        Sid       = "DenyInsecureConnections",
-        Effect    = "Deny",
-        Principal = "*",
-        Action    = "s3:*",
-        Resource  = [
-          "${aws_s3_bucket.image_bucket.arn}/*",
-        ],
-        Condition = {
-          Bool     = {
-            "aws:SecureTransport": "false"
-          }
-        }
-      },
-      {
-        Sid       = "AllowAuthenticatedRead",
+        Sid       = "AllowPublicRead",
         Effect    = "Allow",
         Principal = "*",
         Action    = "s3:GetObject",
-        Resource  = [
-          "${aws_s3_bucket.image_bucket.arn}/*",
-        ],
-        Condition = {
-          StringLikeIfExists = {
-            "aws:userid": "aws:userid"
-          }
-        }
+        Resource  = "${aws_s3_bucket.image_bucket.arn}/*",
       }
     ]
   })
