@@ -11,23 +11,6 @@ resource "aws_s3_bucket" "image_bucket" {
   bucket = var.bucket_name
 }
 
-resource "aws_s3_bucket_policy" "image_bucket_policy" {
-  bucket = aws_s3_bucket.image_bucket.id
-
-  policy = jsonencode({
-    Version = "2012-10-17",
-    Statement = [
-      {
-        Sid       = "AllowPublicRead",
-        Effect    = "Allow",
-        Principal = "*",
-        Action    = "s3:GetObject",
-        Resource  = "${aws_s3_bucket.image_bucket.arn}/*",
-      }
-    ]
-  })
-}
-
 resource "aws_s3_bucket_lifecycle_configuration" "image_bucket_lifecycle" {
   bucket = aws_s3_bucket.image_bucket.id
 
