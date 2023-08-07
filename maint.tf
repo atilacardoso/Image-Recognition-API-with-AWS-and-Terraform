@@ -9,17 +9,54 @@ variable "bucket_name" {
 
 terraform {
   backend "s3" {
-    bucket         = "my-api-image-terraform-state"  # Replace with the name of the bucket for storing Terraform state
+    bucket         = "my-api-image-terraform-state"
     key            = "terraform.tfstate"
     region         = "us-east-1"  # Change this to the region of your S3 bucket
     encrypt        = true
-    dynamodb_table = "my-terraform-lock-table"  # Replace with your desired DynamoDB table name
+    dynamodb_table = "my-terraform-lock-table"
   }
 }
 
 resource "aws_s3_bucket" "image_bucket" {
   bucket = var.bucket_name
-  acl    = "private"  # Set the ACL for the bucket
+}
+
+resource "aws_s3_bucket_policy" "image_bucket_policy" {
+  bucket = aws_s3_bucket.image_bucket.id
+
+  policy = jsonencode({
+    Version = "2012-10-17",
+    Statement = [
+      {
+        Sid       = "DenyInsecureConnections",
+        Effect    = "Deny",
+        Principal = "*",
+        Action    = "s3:*",
+        Resource  = [
+          "${aws_s3_bucket.image_bucket.arn}/*",
+        ],
+        Condition = {
+          Bool     = {
+            "aws:SecureTransport": "false"
+          }
+        }
+      },
+      {
+        Sid       = "AllowAuthenticatedRead",
+        Effect    = "Allow",
+        Principal = "*",
+        Action    = "s3:GetObject",
+        Resource  = [
+          "${aws_s3_bucket.image_bucket.arn}/*",
+        ],
+        Condition = {
+          StringLikeIfExists = {
+            "aws:userid": "aws:userid"
+          }
+        }
+      }
+    ]
+  })
 }
 
 resource "aws_s3_bucket_lifecycle_configuration" "image_bucket_lifecycle" {
@@ -35,21 +72,3 @@ resource "aws_s3_bucket_lifecycle_configuration" "image_bucket_lifecycle" {
     }
   }
 }
-
-resource "aws_s3_bucket_policy" "image_bucket_policy" {
-  bucket = aws_s3_bucket.image_bucket.id
-
-  policy = jsonencode({
-    Version = "2012-10-17",
-    Statement = [
-      {
-        Sid       = "GrantPermissions",
-        Effect    = "Allow",
-        Principal = "*",
-        Action    = "s3:GetObject",
-        Resource  = "${aws_s3_bucket.image_bucket.arn}/*"
-      }
-    ]
-  })
-}
-
