@@ -25,9 +25,10 @@ resource "aws_iam_policy" "lambda_invoke_policy" {
 }
 
 # Attach the Lambda policy to the role
-resource "aws_iam_role_policy_attachment" "lambda_policy_attachment" {
+resource "aws_iam_policy_attachment" "lambda_policy_attachment" {
+  name       = "lambda_policy_attachment"
   policy_arn = aws_iam_policy.lambda_invoke_policy.arn
-  role       = aws_iam_role.rekognition_role.name
+  roles      = [aws_iam_role.rekognition_role.name]
 }
 
 # Create an event source mapping for the S3 trigger
@@ -40,6 +41,6 @@ resource "aws_lambda_event_source_mapping" "s3_trigger" {
     aws_s3_bucket.image_bucket,
     aws_lambda_function.image_recognition_lambda,
     aws_iam_policy.lambda_invoke_policy,
-    aws_iam_role_policy_attachment.lambda_policy_attachment,
+    aws_iam_policy_attachment.lambda_policy_attachment,
   ]
 }
