@@ -29,6 +29,16 @@ resource "aws_iam_policy_attachment" "lambda_policy_attachment" {
   roles      = [aws_iam_role.rekognition_role.name]
 }
 
+# Create Lambda permission for S3 bucket notification
+resource "aws_lambda_permission" "bucket_notification_permission" {
+  statement_id  = "AllowExecutionFromS3Bucket"
+  action        = "lambda:InvokeFunction"
+  function_name = aws_lambda_function.image_recognition_lambda.function_name
+  principal     = "s3.amazonaws.com"
+
+  source_arn = aws_s3_bucket.image_bucket.arn
+}
+
 resource "null_resource" "delay" {
   triggers = {
     # Adding a dummy trigger to cause a delay
@@ -39,7 +49,7 @@ resource "null_resource" "delay" {
 resource "aws_s3_bucket_notification" "bucket_notification" {
   bucket = aws_s3_bucket.image_bucket.id
 
-  depends_on = [null_resource.delay]
+  depends_on = [null_resource.delay, aws_lambda_permission.bucket_notification_permission]
 
   lambda_function {
     lambda_function_arn = aws_lambda_function.image_recognition_lambda.arn
