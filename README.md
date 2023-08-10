@@ -13,11 +13,11 @@ Before you begin, make sure you have the following prerequisites and get started
 
 1. Clone this repository to your local machine:
 
-   git clone https://github.com/atilacardoso/image-rekognition-api.git
+   git clone https://github.com/atilacardoso/Image-Recognition-API-with-AWS-and-Terraform.git
 
 2.  Change into the project directory:
 
-    cd image-rekognition-api
+    cd Image-Recognition-API-with-AWS-and-Terraform
 
 3. Initialize Terraform:
 
@@ -43,10 +43,10 @@ Before you begin, make sure you have the following prerequisites and get started
 
 ##  Contribuitions 
 
-    Join the Journey! Contributions? Questions? We'd love to hear from you! Open a pull request, submit an issue, or simply connect with the community. Let's shape the future together!
+Join the Journey! Contributions? Questions? We'd love to hear from you! Open a pull request, submit an issue, or simply connect with the community. Let's shape the future together!
 
 ## License
 
-    This project is proudly licensed under the [MIT License](LICENSE). Feel free to explore, expand, and share the innovation.
+This project is proudly licensed under the [MIT License](LICENSE). Feel free to explore, expand, and share the innovation.
 
 
