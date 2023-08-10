@@ -31,18 +31,18 @@ resource "aws_iam_policy_attachment" "lambda_policy_attachment" {
   roles      = [aws_iam_role.rekognition_role.name]
 }
 
-# Set up S3 event configuration for Lambda trigger
-resource "aws_s3_bucket_notification" "bucket_notification" {
-  bucket = aws_s3_bucket.image_bucket.id
-
-  lambda_function {
-    lambda_function_arn = aws_lambda_function.image_recognition_lambda.arn
-    events              = ["s3:ObjectCreated:*"]
-  }
-  
+resource "null_resource" "delay" {
   depends_on = [
     aws_lambda_function.image_recognition_lambda,
-    aws_iam_policy.lambda_invoke_policy,
     aws_iam_policy_attachment.lambda_policy_attachment,
   ]
+
+  triggers = {
+    # Introduce a delay of 10 seconds (adjust as needed)
+    delay_seconds = timestamp()
+  }
+
+  provisioner "local-exec" {
+    command = "sleep 10"  # Sleep for 10 seconds
+  }
 }
