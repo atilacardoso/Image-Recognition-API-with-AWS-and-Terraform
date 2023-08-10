@@ -31,14 +31,16 @@ resource "aws_iam_policy_attachment" "lambda_policy_attachment" {
   roles      = [aws_iam_role.rekognition_role.name]
 }
 
-# Create an event source mapping for the S3 trigger
-resource "aws_lambda_event_source_mapping" "s3_trigger" {
-  event_source_arn = aws_s3_bucket.image_bucket.arn
-  function_name    = aws_lambda_function.image_recognition_lambda.function_name
-  starting_position = "LATEST"  # Adjust as needed (e.g., "TRIM_HORIZON", "LATEST")
+# Set up S3 event configuration for Lambda trigger
+resource "aws_s3_bucket_notification" "bucket_notification" {
+  bucket = aws_s3_bucket.image_bucket.id
 
+  lambda_function {
+    lambda_function_arn = aws_lambda_function.image_recognition_lambda.arn
+    events              = ["s3:ObjectCreated:*"]
+  }
+  
   depends_on = [
-    aws_s3_bucket.image_bucket,
     aws_lambda_function.image_recognition_lambda,
     aws_iam_policy.lambda_invoke_policy,
     aws_iam_policy_attachment.lambda_policy_attachment,
