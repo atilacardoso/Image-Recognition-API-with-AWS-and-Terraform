@@ -8,7 +8,6 @@ resource "aws_lambda_function" "image_recognition_lambda" {
   source_code_hash = filebase64sha256("lambda_function_payload.zip")
 }
 
-# Create an IAM policy for Lambda function invocation
 resource "aws_iam_policy" "lambda_invoke_policy" {
   name = "LambdaInvokePolicy"
 
@@ -24,7 +23,6 @@ resource "aws_iam_policy" "lambda_invoke_policy" {
   })
 }
 
-# Attach the Lambda policy to the role
 resource "aws_iam_policy_attachment" "lambda_policy_attachment" {
   name       = "lambda_policy_attachment"
   policy_arn = aws_iam_policy.lambda_invoke_policy.arn
@@ -32,17 +30,19 @@ resource "aws_iam_policy_attachment" "lambda_policy_attachment" {
 }
 
 resource "null_resource" "delay" {
-  depends_on = [
-    aws_lambda_function.image_recognition_lambda,
-    aws_iam_policy_attachment.lambda_policy_attachment,
-  ]
-
   triggers = {
-    # Introduce a delay of 10 seconds (adjust as needed)
-    delay_seconds = timestamp()
+    # Adding a dummy trigger to cause a delay
+    delay = timestamp()
   }
+}
 
-  provisioner "local-exec" {
-    command = "sleep 10"  # Sleep for 10 seconds
+resource "aws_s3_bucket_notification" "bucket_notification" {
+  bucket = aws_s3_bucket.image_bucket.id
+
+  depends_on = [null_resource.delay]
+
+  lambda_function {
+    lambda_function_arn = aws_lambda_function.image_recognition_lambda.arn
+    events              = ["s3:ObjectCreated:*"]
   }
 }

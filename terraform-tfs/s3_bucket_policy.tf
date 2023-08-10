@@ -1,6 +1,5 @@
 resource "aws_s3_bucket_policy" "image_bucket_policy" {
-  bucket     = aws_s3_bucket.image_bucket.id
-  depends_on = [null_resource.delay]
+  bucket = aws_s3_bucket.image_bucket.id
 
   policy = jsonencode({
     Version = "2012-10-17",
